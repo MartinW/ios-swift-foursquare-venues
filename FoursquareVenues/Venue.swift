@@ -7,10 +7,10 @@
 //
 
 import UIKit
-import corelocation
+import CoreLocation
 
 class Venue: NSObject {
-   
+    
     let name:String!
     let location:CLLocation!
     let distanceFromUser:CLLocationDistance!

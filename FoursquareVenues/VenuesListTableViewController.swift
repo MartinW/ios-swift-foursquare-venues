@@ -7,22 +7,22 @@
 //
 
 import UIKit
-import corelocation
+import CoreLocation
 
 class VenuesListTableViewController: UITableViewController, FoursquareAPIProtocol, CLLocationManagerDelegate {
     
     let api = FoursquareAPI()
     let locationManager = CLLocationManager()
     
-    var venues = Venue[]()
-
+    var venues = [Venue]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         startUpdatingLocation()
     }
     
-    func locationManager(manager:CLLocationManager!, didUpdateLocations locations:AnyObject[]!) {
+    func locationManager(manager:CLLocationManager!, didUpdateLocations locations:[AnyObject]!) {
         let location = getLatestMeasurementFromLocations(locations)
         
         if isLocationMeasurementNotCached(location) && isHorizontalAccuracyValidMeasurement(location) && isLocationMeasurementDesiredAccuracy(location) {
@@ -33,13 +33,13 @@ class VenuesListTableViewController: UITableViewController, FoursquareAPIProtoco
     }
     
     func locationManager(manager:CLLocationManager!, didFailWithError error:NSError!) {
-        if error.code != CLError.LocationUnknown.toRaw() {
+        if error.code != CLError.LocationUnknown.rawValue {
             stopUpdatingLocation()
         }
     }
     
-    func getLatestMeasurementFromLocations(locations:AnyObject[]) -> CLLocation {
-        return locations[locations.count - 1] as CLLocation
+    func getLatestMeasurementFromLocations(locations:[AnyObject]) -> CLLocation {
+        return locations[locations.count - 1] as! CLLocation
     }
     
     func isLocationMeasurementNotCached(location:CLLocation) -> Bool {
@@ -71,35 +71,37 @@ class VenuesListTableViewController: UITableViewController, FoursquareAPIProtoco
     }
     
     func findVenues(location:CLLocation) {
+        print("findVenues at \(location)");
         api.delegate = self;
         api.searchForCofeeShopsAtLocation(location)
     }
     
-    func didRecieveVenues(results: Venue[]) {
-        venues = sort(results, {$0.distanceFromUser < $1.distanceFromUser})
+    func didRecieveVenues(results: [Venue]) {
+        
+        venues = sorted(results, {$0.distanceFromUser < $1.distanceFromUser})
         
         tableView.reloadData()
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
-
+    
     override func numberOfSectionsInTableView(tableView: UITableView?) -> Int {
         return 1
     }
-
+    
     override func tableView(tableView: UITableView?, numberOfRowsInSection section: Int) -> Int {
         return self.venues.count
     }
     
-    override func tableView(tableView: UITableView!, cellForRowAtIndexPath indexPath: NSIndexPath!) -> UITableViewCell? {
+    override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         
         let CellIndentifier = "ListPrototypeCell"
-        let cell = tableView.dequeueReusableCellWithIdentifier(CellIndentifier) as UITableViewCell
+        let cell = tableView.dequeueReusableCellWithIdentifier(CellIndentifier) as! UITableViewCell
         let venue = self.venues[indexPath.row] as Venue
         
-        cell.textLabel.text = venue.name
+        cell.textLabel!.text = venue.name
         
         return cell
     }
